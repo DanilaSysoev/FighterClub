@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block page_title %}Главная страница{% endblock %}
+
+{% block page_main %}
+
+<table>
+    <tbody>
+        <tr>
+            <th>            
+                <h3>{{ fighter.name }}</h3>
+                <form action="/rename/">
+                    <button type="submit">Изменить</button>
+                </form>
+                <hr/>
+                {% for eq in equipment %}
+                <form action="/take_off/" method="post">
+                    <p><strong>{{ eq.body_part.name }}</strong>
+                        {% if eq.armor %}
+                        - <i>{{ eq.armor.name }}</i>
+                        <button type="submit">X</button>
+                        <input type="hidden" name="armor" value="{{ eq.armor.id }}"/>
+                        {% endif %}
+                    </p>
+                    {% csrf_token %}
+                </form>
+                {% endfor %}
+                <hr/>
+                <form action="/take_off/" method="post">
+                <p><strong>Оружие - </strong>
+                {% if fighter.weapon %}
+                    <i>{{ fighter.weapon.name }}</i>
+                    <button type="submit">X</button>
+                    <input type="hidden" name="weapon" value="weapon"/>
+                {% endif %}
+                </p>
+                {% csrf_token %}
+                </form>
+                <hr/>
+            </th>
+            <th>
+                <h3>Инвентарь</h3>
+                <form action="/equip/" method="post">
+                <hr/>
+                {% for armor_info in armors %}
+                {% if armor_info.count > 0 %}
+                <div>
+                    <input type="radio" name="armor" id="{{ armor_info.armor.id }}" value="{{ armor_info.armor.id }}"/>
+                    <label for="{{ armor_info.armor.id }}">{{ armor_info.armor.name }} - {{ armor_info.count }}</label>
+                </div>
+                {% endif %}
+                {% endfor %}
+                <hr/>
+                {% for weapon_info in weapons %}
+                {% if weapon_info.count > 0 %}
+                <div>
+                    <input type="radio" name="weapon" id="{{ weapon_info.weapon.id }}" value="{{ weapon_info.weapon.id }}"/>
+                    <label for="{{ weapon_info.weapon.id }}">{{ weapon_info.weapon.name }} - {{ weapon_info.count }}</label>
+                </div>
+                {% endif %}
+                {% endfor %}
+                <hr/>
+                <button type="submit">Экипировать</button>
+                {% csrf_token %}
+                </form>
+            </th>
+        </tr>
+    </tbody>
+</table>
+<div>
+    <a href='/shop/'>В магазин</a>
+</div>
+<div>
+    <a href='/quests/'>К списку заданий</a>
+</div>
+
+{% endblock %}
+
+{% block page_footer %}
+    {% if user.is_authenticated %}
+    <a href='./logout/'>Выйти</a>
+    {% endif %}
+{% endblock %}

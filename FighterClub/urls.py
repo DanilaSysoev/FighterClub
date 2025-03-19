@@ -16,7 +16,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from FighterClub.views import \
+    index, login, logout, signup, rename, equip, take_off, \
+    inventory, shop, quests, \
+    fight, loot_collection, equipment, start_fight
+        
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', index, name='index'),
+    path('login/', login, name='login'),
+    path('signup/', signup, name='signup'),
+    path('logout/', logout, name='logout'),
+    path('rename/', rename, name='rename'),
+    path('equip/', equip, name='equip'),
+    path('take_off/', take_off, name='take_off'),
+    path('inventory/', inventory, name='inventory'),
+    path('shop/', shop, name='shop'),
+    path('quests/', quests, name='quests'),
+    path('start_fight/', start_fight, name='start_fight'),
+    path('fight/', fight, name='fight'),
+    path('loot_collection/', loot_collection, name='loot_collection'),
+    path('equipment/', equipment, name='equipment'),
 ]

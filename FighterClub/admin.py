@@ -5,7 +5,13 @@ from .models import Weapon, \
                     Treasure, \
                     FighterEquipment, \
                     Fighter, \
-                    Monster
+                    Monster, \
+                    InventoryArmor, \
+                    InventoryWeapon, \
+                    InventoryTreasure, \
+                    Stage, \
+                    Quest, \
+                    StageMonster
 
 admin.site.register(Weapon)
 admin.site.register(Armor)
@@ -14,3 +20,9 @@ admin.site.register(Treasure)
 admin.site.register(FighterEquipment)
 admin.site.register(Fighter)
 admin.site.register(Monster)
+admin.site.register(InventoryArmor)
+admin.site.register(InventoryWeapon)
+admin.site.register(InventoryTreasure)
+admin.site.register(Stage)
+admin.site.register(Quest)
+admin.site.register(StageMonster)

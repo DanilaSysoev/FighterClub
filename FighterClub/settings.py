@@ -53,7 +53,9 @@ ROOT_URLCONF = 'FighterClub.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            './templates/FighterClub'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

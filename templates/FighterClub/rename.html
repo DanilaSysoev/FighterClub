@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_title %}Страница rename{% endblock %}
+
+{% block page_main %}
+<form method='post' action='/rename/'>
+    {% csrf_token %}
+    <label for="new_name">Новое имя персонажа: </label>
+    <input id="new_name" type="text" name="new_name" value="{{ new_name }}">
+    <input type="submit" value="OK">
+</form>
+{% endblock %}
+
+{% block footer %}
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+{% endblock %}

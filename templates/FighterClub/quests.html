@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block page_title %}Список квестов{% endblock %}
+
+{% block page_main %}
+
+<h2>Доступные задания</h2>
+
+<ul>
+{% for quest in quests %}
+    <li>
+        <div>
+            <h4>{{ quest.name }}</h4>
+            <p>{{ quest.description }}</p>
+            <form action="/start_fight/" method="post">
+                <input type="hidden" name="quest" value="{{ quest.id }}"/>
+                <button type="submit">Отправиться</button>
+                {% csrf_token %}
+            </form>
+        </div>
+    </li>
+{% endfor %}
+</ul>
+
+<div>
+    <a href='/inventory/'>Выбрать снаряжение</a>
+</div>
+
+{% endblock %}
+
+{% block page_footer %}
+    {% if user.is_authenticated %}
+    <a href='./logout/'>Выйти</a>
+    {% endif %}
+{% endblock %}
