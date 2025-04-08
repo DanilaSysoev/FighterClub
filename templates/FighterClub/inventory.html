@@ -1,13 +1,123 @@
 {% extends "base.html" %}
 
-{% block page_title %}Главная страница{% endblock %}
+{% block page_title %}Инвентарь{% endblock %}
 
 {% block page_main %}
 
-<table>
+<div class="container">
+    <div class="row">
+        <div class="col d-flex flex-column">
+            <div class="card flex-fill">
+                <div class="card-header">                    
+                    <form action="/rename/">
+                        <div class="row">
+                            <div class="col-md-auto h3">{{ fighter.name }}</div>
+                            <div class="col">
+                                <button type="submit" class="btn">&#x270D;</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% for eq in equipment %}
+                    <form action="/take_off/" method="post">
+                        <div class="row my-1">
+                            <div class="col d-flex align-items-center">
+                                <span class="fw-bold align-middle">{{ eq.body_part.name }}</span>
+                            </div>
+                            <div class="col-8 d-flex align-items-center">
+                                {% if eq.armor %}
+                                <span class="fst-italic align-middle">{{ eq.armor.name }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-1 d-flex align-items-center">
+                                {% if eq.armor %}
+                                <button type="submit" class="btn btn-sm btn-danger">X</button>
+                                <input type="hidden" name="armor" value="{{ eq.armor.id }}"/>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% csrf_token %}
+                    </form>
+                    {% endfor %}
+                    <hr/>
+                    <form action="/take_off/" method="post">
+                    <div class="row my-1">
+                        <div class="col d-flex align-items-center">
+                            <span class="fw-bold align-middle">Оружие</span>
+                        </div>
+                        <div class="col-8 d-flex align-items-center">
+                            {% if fighter.weapon %}
+                            <span class="fst-italic align-middle">{{ fighter.weapon.name }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-1 d-flex align-items-center">
+                            {% if fighter.weapon %}
+                            <button type="submit" class="btn btn-sm btn-danger">X</button>
+                            <input type="hidden" name="weapon" value="weapon"/>
+                            {% else %}
+                            <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <h3>Инвентарь</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/equip/" method="post">
+                    <div class="overflow-auto" style="height: 80px">
+                        {% for armor_info in armors %}
+                        {% if armor_info.count > 0 %}
+                        <div>
+                            <input type="radio" name="armor" id="{{ armor_info.armor.id }}" value="{{ armor_info.armor.id }}"/>
+                            <label for="{{ armor_info.armor.id }}">{{ armor_info.armor.name }} - {{ armor_info.count }}</label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <hr/>
+                    <div class="overflow-auto" style="height: 80px">
+                        {% for weapon_info in weapons %}
+                        {% if weapon_info.count > 0 %}
+                        <div>
+                            <input type="radio" name="weapon" id="{{ weapon_info.weapon.id }}" value="{{ weapon_info.weapon.id }}"/>
+                            <label for="{{ weapon_info.weapon.id }}">{{ weapon_info.weapon.name }} - {{ weapon_info.count }}</label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <hr/>
+                    <button type="submit" class="btn btn-primary btn-sm">Экипировать</button>
+                    {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-auto">
+            <a href='/shop/' role="button" class="btn btn-primary">В магазин</a>
+        </div>
+        <div class="col-auto">
+            <a href='/quests/' role="burron" class="btn btn-primary">К списку заданий</a>
+        </div>
+    </div>
+</div>
+
+{% comment %} <table>
     <tbody>
         <tr>
-            <th>            
+            <td>            
                 <h3>{{ fighter.name }}</h3>
                 <form action="/rename/">
                     <button type="submit">Изменить</button>
@@ -37,8 +147,8 @@
                 {% csrf_token %}
                 </form>
                 <hr/>
-            </th>
-            <th>
+            </td>
+            <td>
                 <h3>Инвентарь</h3>
                 <form action="/equip/" method="post">
                 <hr/>
@@ -63,7 +173,7 @@
                 <button type="submit">Экипировать</button>
                 {% csrf_token %}
                 </form>
-            </th>
+            </td>
         </tr>
     </tbody>
 </table>
@@ -73,11 +183,11 @@
 <div>
     <a href='/quests/'>К списку заданий</a>
 </div>
-
+{% endcomment %}
 {% endblock %}
 
 {% block page_footer %}
-    {% if user.is_authenticated %}
+    {% if user.is_autdenticated %}
     <a href='./logout/'>Выйти</a>
     {% endif %}
 {% endblock %}

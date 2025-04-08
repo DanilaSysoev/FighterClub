@@ -19,7 +19,7 @@ from django.urls import path
 from FighterClub.views import \
     index, login, logout, signup, rename, equip, take_off, \
     inventory, shop, quests, \
-    fight, loot_collection, equipment, start_fight
+    fight, loot_collection, equipment, start_fight, death
         
 
 urlpatterns = [
@@ -38,4 +38,5 @@ urlpatterns = [
     path('fight/', fight, name='fight'),
     path('loot_collection/', loot_collection, name='loot_collection'),
     path('equipment/', equipment, name='equipment'),
+    path('death/', death, name='death')
 ]

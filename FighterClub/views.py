@@ -15,10 +15,18 @@ from FighterClub.models import Fighter, \
                                FightMonster, \
                                StageMonster
 
-from FighterClub.decorators import auth_required, fight_static
+from FighterClub.decorators import auth_required, \
+                                   fight_static, \
+                                   take_loot_static, \
+                                   equipment_static
 from FighterClub.gameplay import SellShopTransaction, \
-                                 BuyShopTransaction
-from FighterClub.enum_helpers import FighterStateEntry
+                                 BuyShopTransaction, \
+                                 FightProcessor, \
+                                 TreasureGeneratorMapper
+
+from FighterClub.enum_helpers import FighterStateEntry, StateNames
+from FighterClub.gameplay_settings import DEATH_STRATEGY, \
+                                          ENEMIES_IN_ROW
 
 import requests
 import sys
@@ -140,6 +148,8 @@ def signup(request):
 
 @auth_required
 @fight_static
+@take_loot_static
+@equipment_static
 def rename(request):
     if request.POST:
         if request.POST['new_name'].strip() == '':
@@ -170,22 +180,30 @@ def equip_weapon(request):
 
 @auth_required
 @fight_static
+@take_loot_static
 def equip(request):
+    next_state = FighterStateEntry.INVENTORY.value
     if request.POST:
+        if 'next_state' in request.POST:
+            next_state = request.POST['next_state']
         equip_armor(request)
         equip_weapon(request)
-    return redirect(FighterStateEntry.INVENTORY.value)
+    return redirect(next_state)
 
 
 @auth_required
 @fight_static
+@take_loot_static
 def take_off(request):
+    next_state = FighterStateEntry.INVENTORY.value
     if request.POST:
+        if 'next_state' in request.POST:
+            next_state = request.POST['next_state']
         if 'weapon' in request.POST:
             request.user.fighter.take_off_weapon()
         elif 'armor' in request.POST:
             request.user.fighter.take_off_armor(int(request.POST['armor'][0]))
-    return redirect(FighterStateEntry.INVENTORY.value)
+    return redirect(next_state)
 
 
 def extract_fighter_context(request):
@@ -204,6 +222,8 @@ def extract_fighter_context(request):
 
 @auth_required
 @fight_static
+@take_loot_static
+@equipment_static
 def inventory(request):
     request.user.fighter.to_inventory_state()
     context = extract_fighter_context(request)
@@ -212,6 +232,8 @@ def inventory(request):
 
 @auth_required
 @fight_static
+@take_loot_static
+@equipment_static
 def shop(request):
     request.user.fighter.to_shop_state()
     if request.POST:
@@ -236,6 +258,8 @@ def shop(request):
 
 @auth_required
 @fight_static
+@take_loot_static
+@equipment_static
 def quests(request):
     request.user.fighter.to_selection_quest_state()
     context = {
@@ -244,9 +268,8 @@ def quests(request):
     return render(request, 'quests.html', context=context)
 
 
-def create_fight(fighter, quest):
-    stage = quest.start
-    fight = Fight.objects.create(fighter=fighter, stage=quest.start)
+def create_fight(fighter, stage):
+    fight = Fight.objects.create(fighter=fighter, stage=stage)
     stage_monsters = StageMonster.objects.filter(stage=stage).all()
     for stage_monster in stage_monsters:
         for _ in range(stage_monster.count):
@@ -260,27 +283,141 @@ def create_fight(fighter, quest):
 
 @auth_required
 @fight_static
+@take_loot_static
+@equipment_static
 def start_fight(request):
     if request.POST and 'quest' in request.POST:
         quest = Quest.objects.get(id=int(request.POST['quest'][0]))
-        create_fight(request.user.fighter, quest)        
+        create_fight(request.user.fighter, quest.start)        
         request.user.fighter.to_fight_state()
         return redirect(FighterStateEntry.FIGHT.value)
     return redirect(FighterStateEntry.SELECTION_QUEST.value)
 
 
 @auth_required
+def death(request):
+    if request.user.fighter.health > 0:
+        return redirect('/')
+    
+    death_strategy = DEATH_STRATEGY()
+    death_strategy.death_process(request.user.fighter)
+    context = {
+        'fighter': request.user.fighter,
+        'log': death_strategy.get_log()
+    }
+    return render(request, 'death.html', context=context)
+
+
+def exists_enemy(request):
+    return request.user.fighter.fight.fightmonster_set.count() > 0
+
+
+@auth_required
 def fight(request):
-    return render(request, 'fight.html')
+    if not exists_enemy(request):
+        request.user.fighter.to_take_loot_state()
+        return redirect('/')
+    if request.user.fighter.state.name != StateNames.Fight.value:
+        return redirect('/')
+    fight = get_object_or_404(Fight, fighter=request.user.fighter)
+    
+    context = {
+        'fighter': request.user.fighter,
+        'fight': fight
+    }
+    if request.POST:
+        fight_processor = FightProcessor(request)
+        fight_processor.process()        
+        context['log'] = fight_processor.get_log()
+        if request.user.fighter.health <= 0:
+            return redirect('/death')
+        if fight_processor.is_fight_finished():
+            request.user.fighter.to_take_loot_state()
+            return redirect('/')
+    
+    context['monsters_rows'] = create_monster_rows(fight)
+    
+    return render(request, 'fight.html', context=context)
+
+
+def create_monster_rows(fight):
+    fight_monsters = FightMonster.objects.filter(fight=fight, hp__gt=0).all()
+    monsters_rows = []
+    for row in range(len(fight_monsters) // ENEMIES_IN_ROW + 1):
+        monsters_rows.append(
+            fight_monsters[row * ENEMIES_IN_ROW : (row + 1) * ENEMIES_IN_ROW]
+        )
+        
+    return monsters_rows
 
 
 @auth_required
 @fight_static
+@equipment_static
 def loot_collection(request):
-    pass
+    treasures = extract_treasures(request)
+    if request.POST:
+        take_treasure(request, treasures)
+        request.user.fighter.to_equipment_state()
+        return redirect('/')
+    return render(request,
+                  'loot_collection.html',
+                  context={ 'treasures': treasures,
+                            'fighter': request.user.fighter })
+    
+
+def extract_treasures(request):
+    treasure_generator = TreasureGeneratorMapper[
+        request.user.fighter.fight.stage.treasureGenerator
+    ]()
+    return treasure_generator.generate(
+        request.user.fighter.fight.stage.treasureVolume
+    )
+
+
+def take_treasure(request, treasures):
+    for treasure in treasures:
+        request.user.fighter.add_to_inventory(treasure)
+
+
+def remove_fight(request):
+    request.user.fighter.fight.delete()
 
 
 @auth_required
 @fight_static
+@take_loot_static
 def equipment(request):
-    pass
+    if request.POST:
+        if 'continue' in request.POST:
+            return continue_quest(request)
+        elif 'leave' in request.POST:
+            return leave_quest(request)
+    fighter = request.user.fighter    
+    context =  {
+        'user': request.user,
+        'fighter': fighter,
+        'equipment': get_equipment(fighter),
+        'armors': InventoryArmor.objects.filter(fighter=fighter).all(),
+        'weapons': InventoryWeapon.objects.filter(fighter=fighter).all()
+    }
+    return render(request, 'equipment.html', context=context)
+
+
+def continue_quest(request):
+    next_stage = request.user.fighter.fight.stage.next
+    if not next_stage:
+        return leave_quest(request)
+    remove_fight(request)
+    create_fight(
+        request.user.fighter,
+        next_stage
+    )
+    request.user.fighter.to_fight_state()
+    return redirect(FighterStateEntry.FIGHT.value)
+
+
+def leave_quest(request):
+    remove_fight(request)
+    request.user.fighter.to_inventory_state()
+    return redirect('/')

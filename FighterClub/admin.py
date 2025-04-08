@@ -11,7 +11,10 @@ from .models import Weapon, \
                     InventoryTreasure, \
                     Stage, \
                     Quest, \
-                    StageMonster
+                    StageMonster, \
+                    Fight, \
+                    FightMonster, \
+                    MonsterArmor
 
 admin.site.register(Weapon)
 admin.site.register(Armor)
@@ -26,3 +29,6 @@ admin.site.register(InventoryTreasure)
 admin.site.register(Stage)
 admin.site.register(Quest)
 admin.site.register(StageMonster)
+admin.site.register(Fight)
+admin.site.register(FightMonster)
+admin.site.register(MonsterArmor)

@@ -1,1 +1,88 @@
-Fight
+{% extends "base.html" %}
+
+{% block page_title %}Сражение{% endblock %}
+
+{% block page_main %}
+<form action='/fight/' method='post'>
+<table>
+    {% for row in monsters_rows %}
+    <tr>
+        {% if forloop.counter == 1 %}
+        <td>
+            <div style="border: thick double #aaaaaa; padding: 5px; width: 200px;">
+                <h4>{{ fighter.name }}</h4>
+                <hr/>
+                <p><strong>Здоровье:</strong> {{ fighter.health }} / {{ fighter.max_health }}</p>
+                <hr/>
+                <p><strong>Защитить:</strong></p>
+                {% for equipment in fighter.fighterequipment_set.all %}
+                <p>
+                {% if forloop.counter == 1 %}
+                <input type="radio" name="defence" id="{{ equipment.id }}" value="{{ equipment.body_part.name }}" checked/>
+                {% else %}
+                <input type="radio" name="defence" id="{{ equipment.id }}" value="{{ equipment.body_part.name }}"/>
+                {% endif %}                
+                <label for="{{ equipment.id }}">{{ equipment.body_part.name }} - 🛡️
+                {% if equipment.armor.armor %}
+                    {{ equipment.armor.armor }}
+                {% else %}
+                    0
+                {% endif %}
+                </label>
+                </p>
+                {% endfor %}
+            </div>            
+        </td>
+        <td>
+            <div style="margin: 10px;">
+                💥 ⚔️ 💥
+            </div>
+        </td>
+        {% else %}
+        <td></td>
+        <td></td>
+        {% endif %}
+
+        {% for fight_monster in row %}
+        <td>
+            <div style="border: thick double #aaaaaa; padding: 5px; width: 200px">
+                <h4>{{ fight_monster.monster.name }}</h4>
+                <hr/>
+                <p><strong>Здоровье:</strong> {{ fight_monster.hp }} / {{ fight_monster.monster.max_hp }}</p>
+                <hr/>
+                <p><strong>Атаковать:</strong></p>
+                {% for monster_armor in fight_monster.monster.monsterarmor_set.all %}
+                <p>
+                {% if forloop.counter == 1 %}
+                <input type="radio" name="attack" id="{{ monster_armor.id }}" value="{{ monster_armor.id }} {{ fight_monster.id }}" checked/>
+                {% else %}
+                <input type="radio" name="attack" id="{{ monster_armor.id }}" value="{{ monster_armor.id }} {{ fight_monster.id }}"/>
+                {% endif %}                
+                <label for="{{ monster_armor.id }}">{{ monster_armor.body_part.name }} - 🛡️ {{ monster_armor.armor }}</label>
+                </p>
+                {% endfor %}
+            </div>
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% if log %}
+<div>
+    {% for log_line in log %}
+    <p>{{ log_line }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+<div>
+    <button type="submit">Завершить ход</button>
+</div>
+{% csrf_token %}
+</form>
+{% endblock %}
+
+{% block page_footer %}
+    {% if user.is_authenticated %}
+    <a href='./logout/'>Выйти</a>
+    {% endif %}
+{% endblock %}

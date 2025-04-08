@@ -28,6 +28,10 @@ class Weapon(models.Model):
                                      decimal_places=2,
                                      max_digits=5)
     
+    def take_off(self, fighter):
+        if fighter.weapon == self:
+            fighter.take_off_weapon()
+    
     def add_to_inventory(self, fighter):
         data = InventoryWeapon.objects.filter(fighter=fighter, weapon=self)
         if data.exists():
@@ -85,6 +89,9 @@ class Armor(models.Model):
                                      decimal_places=2,
                                      max_digits=5)
     
+    def take_off(self, fighter):
+        fighter.take_off_armor(self.id)
+    
     def add_to_inventory(self, fighter):
         data = InventoryArmor.objects.filter(fighter=fighter, armor=self)
         if data.exists():
@@ -123,7 +130,7 @@ class Armor(models.Model):
                f'{self.get_sell_price()}💰'
     
     def buy_info(self):
-                return f'{self.name}: {self.body_part}, ' \
+        return f'{self.name}: {self.body_part}, ' \
                f'{self.armor}🛡 ' \
                f'{self.get_buy_price()}💰'
 
@@ -348,6 +355,9 @@ class FighterEquipment(models.Model):
                               null=True,
                               blank=True)
     
+    def get_armor_value(self):
+        return self.armor.armor if self.armor else 0
+    
     def __str__(self):
         return self.fighter.name + ", " + self.body_part.name
 
@@ -358,10 +368,32 @@ class Monster(models.Model):
     max_hp = models.IntegerField(default=100)
     damage = models.IntegerField(default=1)
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if MonsterArmor.objects.filter(monster=self).exists():
+            return
+        for bp in BodyPart.objects.all():
+            MonsterArmor(monster=self, body_part=bp).save()
+    
     def __str__(self):
         return self.name + \
                " ❤: " + str(self.max_hp) + \
                " 🗡️: " + str(self.damage)
+               
+
+class MonsterArmor(models.Model):
+    class Meta:
+        unique_together = (('monster', 'body_part'),)
+    
+    id = models.AutoField(primary_key=True)
+    monster = models.ForeignKey(Monster,
+                                on_delete=models.CASCADE)
+    body_part = models.ForeignKey(BodyPart,
+                                  on_delete=models.CASCADE)
+    armor = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.monster.name + ", " + self.body_part.name
 
 
 class Stage(models.Model):

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block page_title %}Персонаж погиб{% endblock %}
+
+{% block page_main %}
+    <h3>Персонаж погиб</h3>
+    <hr/>
+    {% for message in log %}
+    <div>
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block page_footer %}
+    <a href='/'>Возродиться</a>
+{% endblock %}

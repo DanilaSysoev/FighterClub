@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block page_title %}Сбор лута{% endblock %}
+
+{% block page_main %}
+<h2>Победа!</h2>
+
+<p><strong>{{ fighter.name }} одержал победу</strong></p>
+<p>Среди останков монстров он обнаружил:</p>
+<ul>
+    {% for treasure in treasures %}
+    <li>{{ treasure }}</li>
+    {% endfor %}
+</ul>
+
+<form action='/loot_collection/' method='post'>
+<div>
+    <button type="submit">Взять</button>
+</div>
+{% csrf_token %}
+</form>
+{% endblock %}
+
+{% block page_footer %}
+    {% if user.is_authenticated %}
+    <a href='./logout/'>Выйти</a>
+    {% endif %}
+{% endblock %}
