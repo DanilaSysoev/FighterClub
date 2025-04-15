@@ -13,7 +13,7 @@
                         <div class="col-md-auto h3">Инвентарь</div>
                     </div>
                 </div>
-                <form action="/shop/" metdod="post">
+                <form action="/shop/" method="post">
                     <input type="hidden" name="sell"/>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
@@ -106,7 +106,7 @@
                 <div class="card-header">
                     <h3>Магазин</h3>
                 </div>
-                <form action="/shop/" metdod="post">
+                <form action="/shop/" method="post" class="d-flex flex-column flex-fill">
                     {% comment %} <div class="card-body"> {% endcomment %}
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
@@ -162,92 +162,23 @@
     <hr/>
     <div class="row">
         <div class="col-auto">
-            <a href='/inventory/' role="button" class="btn btn-primary">В инвентарь</a>
+            <button onclick="location.href = '/inventory/'" class="btn btn-primary">В инвентарь</button>
         </div>
     </div>
+    <div class="row mt-3">
+        {% if user.is_authenticated %}
+        <div class="col-auto">
+            <button onclick="location.href = 'logout/'" class="btn btn-danger">Выйти</button>
+        </div>
+        {% endif %}
+    </div>
+    {% if error_message %}
+    <div class="row mt-3">
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
-{% comment %} 
-<table>
-    <tbody>
-        <tr>
-            <td>
-                <h3>Инвентарь</h3>
-                <hr/>
-                <h4>Деньги - {{ fighter.money }}</h4>
-                <form action="/shop/" metdod="post">
-                <input type="hidden" name="sell"/>
-                <hr/>
-                {% for armor_info in armors %}
-                {% if armor_info.count > 0 %}
-                <div>
-                    <input type="checkbox" name="armor" id="{{ armor_info.armor.id }}" value="{{ armor_info.armor.id }}"/>
-                    <label for="{{ armor_info.armor.id }}">{{ armor_info.armor.sell_info }} ({{ armor_info.count }})</label>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <hr/>
-                {% for weapon_info in weapons %}
-                {% if weapon_info.count > 0 %}
-                <div>
-                    <input type="checkbox" name="weapon" id="{{ weapon_info.weapon.id }}" value="{{ weapon_info.weapon.id }}"/>
-                    <label for="{{ weapon_info.weapon.id }}">{{ weapon_info.weapon.sell_info }} ({{ weapon_info.count }})</label>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <hr/>
-                {% for treasure_info in treasures %}
-                {% if treasure_info.count > 0 %}
-                <div>
-                    <input type="checkbox" name="treasure" id="{{ treasure_info.treasure.id }}" value="{{ treasure_info.treasure.id }}"/>
-                    <label for="{{ treasure_info.treasure.id }}">{{ treasure_info.treasure.sell_info }} ({{ treasure_info.count }})</label>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <hr/>
-                <button type="submit">Продать</button>
-                {% csrf_token %}
-                </form>
-            </td>
-            <td>            
-            <td>
-                <h3>Магазин</h3>
-                <form action="/shop/" metdod="post">
-                <hr/>
-                <input type="hidden" name="buy"/>
-                {% for armor in armors_shop %}                
-                <div>
-                    <input type="checkbox" name="armor" id="{{ armor.id }}" value="{{ armor.id }}"/>
-                    <label for="{{ armor.id }}">{{ armor.buy_info }}</label>
-                </div>                
-                {% endfor %}
-                <hr/>
-                {% for weapon in weapons_shop %}                
-                <div>
-                    <input type="checkbox" name="weapon" id="{{ weapon.id }}" value="{{ weapon.id }}"/>
-                    <label for="{{ weapon.id }}">{{ weapon.buy_info }}</label>
-                </div>                
-                {% endfor %}
-                <hr/>
-                <button type="submit">Купить</button>
-                {% csrf_token %}
-                </form>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<div>
-    <a href='/inventory/'>В инвентарь</a>
-</div> {% endcomment %}
-
-{% if error_message %}
-<h4>{{ error_message }}</h4>
-{% endif %}
-
-{% endblock %}
-
-{% block page_footer %}
-    {% if user.is_autdenticated %}
-    <a href='./logout/'>Выйти</a>
-    {% endif %}
 {% endblock %}

@@ -336,6 +336,8 @@ def fight(request):
             return redirect('/')
     
     context['monsters_rows'] = create_monster_rows(fight)
+    context['empty_cells'] = \
+        [0] * (ENEMIES_IN_ROW - len(context['monsters_rows'][-1]))
     
     return render(request, 'fight.html', context=context)
 

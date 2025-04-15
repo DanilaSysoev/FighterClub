@@ -4,32 +4,47 @@
 
 {% block page_main %}
 
-<h2>Доступные задания</h2>
+<div class="container">
+    <div class="h2">
+        Доступные задания
+    </div>
 
-<ul>
-{% for quest in quests %}
-    <li>
-        <div>
-            <h4>{{ quest.name }}</h4>
-            <p>{{ quest.description }}</p>
-            <form action="/start_fight/" method="post">
-                <input type="hidden" name="quest" value="{{ quest.id }}"/>
-                <button type="submit">Отправиться</button>
-                {% csrf_token %}
-            </form>
+    {% for quest in quests %}
+        <div class="card my-4 flex-fill">
+            <div class="card-header">
+                <div class="h4">
+                    {{ quest.name }}
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ quest.description }}</p>
+            </div>
+            <div class="card-footer">
+                <form action="/start_fight/" method="post">
+                    <input type="hidden" name="quest" value="{{ quest.id }}"/>
+                    <button type="submit" class="btn btn-success">Отправиться</button>
+                    {% csrf_token %}
+                </form>
+            </div>
         </div>
-    </li>
-{% endfor %}
-</ul>
+    {% endfor %}
 
-<div>
-    <a href='/inventory/'>Выбрать снаряжение</a>
+    <div class="row">
+        <div class="col-auto mt-2">
+            <button onclick="location.href = '/inventory/'" class="btn btn-primary">Выбрать снаряжение</button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        {% if user.is_authenticated %}
+        <div class="col-auto">
+            <button onclick="location.href = '/logout/'" class="btn btn-danger">Выйти</button>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}
 
 {% block page_footer %}
-    {% if user.is_authenticated %}
-    <a href='./logout/'>Выйти</a>
-    {% endif %}
+
 {% endblock %}

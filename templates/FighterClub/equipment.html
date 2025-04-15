@@ -4,90 +4,132 @@
 
 {% block page_main %}
 
-<table>
-    <tbody>
-        <tr>
-            <td>            
-                <h3>{{ fighter.name }}</h3>
-                {% for eq in equipment %}
-                <form action="/take_off/" method="post">
-                    <input type="hidden" name="next_state" value="/equipment/"/>
-                    <p><strong>{{ eq.body_part.name }}</strong>
-                        {% if eq.armor %}
-                        - <i>{{ eq.armor.name }}</i>
-                        <button type="submit">X</button>
-                        <input type="hidden" name="armor" value="{{ eq.armor.id }}"/>
+
+<div class="container">
+    <div class="row mt-3">
+        <div class="col d-flex flex-column">
+            <div class="card flex-fill">
+                <div class="card-header">                    
+                    <div class="row">
+                        <div class="col-md-auto h3">{{ fighter.name }}</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% for eq in equipment %}
+                    <form action="/take_off/" method="post">
+                        <div class="row my-1">
+                            <div class="col d-flex align-items-center">
+                                <span class="fw-bold align-middle">{{ eq.body_part.name }}</span>
+                            </div>
+                            <div class="col-8 d-flex align-items-center">
+                                {% if eq.armor %}
+                                <span class="fst-italic align-middle">{{ eq.armor.name }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-1 d-flex align-items-center">
+                                {% if eq.armor %}
+                                <button type="submit" class="btn btn-sm btn-danger">X</button>
+                                <input type="hidden" name="armor" value="{{ eq.armor.id }}"/>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% csrf_token %}
+                    </form>
+                    {% endfor %}
+                    <hr/>
+                    <form action="/take_off/" method="post">
+                    <div class="row my-1">
+                        <div class="col d-flex align-items-center">
+                            <span class="fw-bold align-middle">Оружие</span>
+                        </div>
+                        <div class="col-8 d-flex align-items-center">
+                            {% if fighter.weapon %}
+                            <span class="fst-italic align-middle">{{ fighter.weapon.name }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-1 d-flex align-items-center">
+                            {% if fighter.weapon %}
+                            <button type="submit" class="btn btn-sm btn-danger">X</button>
+                            <input type="hidden" name="weapon" value="weapon"/>
+                            {% else %}
+                            <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <h3>Инвентарь</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/equip/" method="post">
+                    <div class="overflow-auto" style="height: 80px">
+                        {% for armor_info in armors %}
+                        {% if armor_info.count > 0 %}
+                        <div>
+                            <input type="radio" name="armor" id="{{ armor_info.armor.id }}_{{ armor_info.armor.name }}" value="{{ armor_info.armor.id }}"/>
+                            <label for="{{ armor_info.armor.id }}_{{ armor_info.armor.name }}">{{ armor_info.armor.name }} - {{ armor_info.count }}</label>
+                        </div>
                         {% endif %}
-                    </p>
-                    {% csrf_token %}
-                </form>
-                {% endfor %}
-                <hr/>
-                <form action="/take_off/" method="post">
-                    <input type="hidden" name="next_state" value="/equipment/"/>
-                    <p><strong>Оружие - </strong>
-                    {% if fighter.weapon %}
-                        <i>{{ fighter.weapon.name }}</i>
-                        <button type="submit">X</button>
-                        <input type="hidden" name="weapon" value="weapon"/>
-                    {% endif %}
-                    </p>
-                    {% csrf_token %}
-                </form>
-                <hr/>
-            </td>
-            <td>
-                <h3>Инвентарь</h3>
-                <form action="/equip/" method="post">
-                    <input type="hidden" name="next_state" value="/equipment/"/>
-                    <hr/>
-                    {% for armor_info in armors %}
-                    {% if armor_info.count > 0 %}
-                    <div>
-                        <input type="radio" name="armor" id="{{ armor_info.armor.id }}" value="{{ armor_info.armor.id }}"/>
-                        <label for="{{ armor_info.armor.id }}">{{ armor_info.armor.name }} - {{ armor_info.count }}</label>
+                        {% endfor %}
                     </div>
-                    {% endif %}
-                    {% endfor %}
                     <hr/>
-                    {% for weapon_info in weapons %}
-                    {% if weapon_info.count > 0 %}
-                    <div>
-                        <input type="radio" name="weapon" id="{{ weapon_info.weapon.id }}" value="{{ weapon_info.weapon.id }}"/>
-                        <label for="{{ weapon_info.weapon.id }}">{{ weapon_info.weapon.name }} - {{ weapon_info.count }}</label>
+                    <div class="overflow-auto" style="height: 80px">
+                        {% for weapon_info in weapons %}
+                        {% if weapon_info.count > 0 %}
+                        <div>
+                            <input type="radio" name="weapon" id="{{ weapon_info.weapon.id }}_{{ weapon_info.weapon.name }}" value="{{ weapon_info.weapon.id }}"/>
+                            <label for="{{ weapon_info.weapon.id }}_{{ weapon_info.weapon.name }}">{{ weapon_info.weapon.name }} - {{ weapon_info.count }}</label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
-                    {% endif %}
-                    {% endfor %}
                     <hr/>
-                    <button type="submit">Экипировать</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Экипировать</button>
                     {% csrf_token %}
-                </form>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<form action="/equipment/" method="post">
-    <input type="hidden" name="continue" value="continue"/>
-    {% if fighter.fight.stage.next %}
-    <button type="submit">Продолжить задание</button>
-    {% else %}
-    <button type="submit">Квест завершен! Вернуться в лагерь</button>
-    {% endif %}
-    {% csrf_token %}
-</form>
-{% if fighter.fight.stage.next %}
-<form action="/equipment/" method="post">
-    <input type="hidden" name="leave" value="leave"/>
-    <button type="submit">Сбежать</button>
-    {% csrf_token %}
-</form>
-{% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-auto">
+            <form action="/equipment/" method="post">
+                <input type="hidden" name="continue" value="continue"/>
+                {% if fighter.fight.stage.next %}
+                <button type="submit" class="btn btn-success">Продолжить задание</button>
+                {% else %}
+                <button type="submit" class="btn btn-success">Квест завершен! Вернуться в лагерь</button>
+                {% endif %}
+                {% csrf_token %}
+            </form>
+        </div>
+        {% if fighter.fight.stage.next %}
+        <div class="col-auto">
+            <form action="/equipment/" method="post">
+                <input type="hidden" name="leave" value="leave"/>
+                <button type="submit" class="btn btn-danger">Сбежать</button>
+                {% csrf_token %}
+            </form>            
+        </div>
+        {% endif %}
+    </div>
+    <div class="row mt-3">
+        {% if user.is_authenticated %}
+        <div class="col-auto">
+            <button onclick="location.href = '/logout/'" class="btn btn-danger">Выйти</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}
 
-{% block page_footer %}
-    {% if user.is_autdenticated %}
-    <a href='./logout/'>Выйти</a>
-    {% endif %}
-{% endblock %}

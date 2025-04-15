@@ -3,24 +3,71 @@
 {% block page_title %}Страница signup{% endblock %}
 
 {% block page_main %}
-<form method='post' action='../signup/'>
-    {% csrf_token %}
-    <label for="username">username: </label>
-    <input id="username" type="text" name="username" value="{{ username }}" required>
-    <label for="email">email: </label>
-    <input id="email" type="text" name="email" value="{{ email }}" required>
-    <label for="password">password: </label>
-    <input id="password" type="password" name="password" value="{{ password }}" required>
-    <label for="password_again">password again: </label>
-    <input id="password_again" type="password" name="password_again" value="{{ password_again }}" required>
-    <input type="submit" value="OK">
+<div class="container">
+    <div class="d-flex justify-content-center mt-3">
+        <div class="card">
+            <div class="card-header">
+                <h3>Создание аккаунта</h3>
+            </div>
+            <div class="card-body">
+                <form method='post' action='/signup/'>
+                    {% csrf_token %}
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input id="username" type="text" name="username" value="{{ username }}" class="form-control">
 
-    <div
-        id="captcha-container"
-        class="smart-captcha"
-        data-sitekey="{{ client_code }}"
-    ></div>
-</form>
+                    <label for="email" class="form-label mt-2">email </label>
+                    <input id="email" type="text" name="email" value="{{ email }}" required class="form-control">
+
+                    <label for="password" class="form-label mt-2">Пароль</label>
+                    <input id="password" type="password" name="password" value="{{ password }}" class="form-control" required>
+
+                    <label for="password_again" class="form-label mt-2">Повтор пароля </label>
+                    <input id="password_again" type="password" name="password_again" value="{{ password_again }}" class="form-control" required>
+
+                    <div
+                        id="captcha-container"
+                        class="smart-captcha mt-3"
+                        data-sitekey="{{ client_code }}"
+                    ></div>
+
+                    <div class="row">
+                        <div class="col-auto">
+                            <input type="submit" value="Войти" class="btn btn-sm btn-success mt-3">
+                        </div>
+                        <div class="col d-flex justify-content-end">
+                            <a href='/login/' class="btn btn-primary btn-sm mt-3">
+                                Уже есть аккаунт
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if message %}
+    <div class="row mt-3">
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% comment %}
+    
+    <form method='post' action='../signup/'>
+        {% csrf_token %}
+        <label for="username">username: </label>
+        <input id="username" type="text" name="username" value="{{ username }}" required>
+        <label for="email">email: </label>
+        <input id="email" type="text" name="email" value="{{ email }}" required>
+        <label for="password">password: </label>
+        <input id="password" type="password" name="password" value="{{ password }}" required>
+        <label for="password_again">password again: </label>
+        <input id="password_again" type="password" name="password_again" value="{{ password_again }}" required>
+        <input type="submit" value="OK">
+    </form>
+{% endcomment %}
 
 {% if message %}
 <p>{{ message }}</p>
@@ -28,8 +75,10 @@
 {% endblock %}
 
 {% block page_footer %}
-<a href='../login/'>
-    Уже есть аккаунт
-</a>
+{% comment %}
+    <a href='../login/'>
+        Уже есть аккаунт
+    </a>
+{% endcomment %}
 <script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
 {% endblock %}

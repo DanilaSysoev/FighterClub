@@ -3,15 +3,23 @@
 {% block page_title %}Персонаж погиб{% endblock %}
 
 {% block page_main %}
-    <h3>Персонаж погиб</h3>
-    <hr/>
-    {% for message in log %}
-    <div>
-        {{ message }}
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3>Персонаж погиб</h3>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for message in log %}
+                <li class="list-group-item">
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer">
+                <a href='/' class="btn btn-sm btn-success">Возродиться</a>
+            </div>
+        </div>
     </div>
-    {% endfor %}
-{% endblock %}
-
-{% block page_footer %}
-    <a href='/'>Возродиться</a>
+</div>
 {% endblock %}

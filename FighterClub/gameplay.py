@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from FighterClub.models import \
     Armor, Weapon, Treasure, \
     Money, FighterEquipment, Fight, BodyPart, \
@@ -114,9 +116,9 @@ class FightProcessor:
     
     def attack(self):
         target = self.select_target()
-        self.fight_monster = FightMonster.objects.get(
-            id=int(self.request.POST.get('attack').split()[1])
-        )
+        self.fight_monster = \
+            get_object_or_404(FightMonster,
+                              id=int(self.request.POST.get('attack').split()[1]))
         self.log.append(f'{self.fighter.name} атакует {self.fight_monster.monster.name}')
         damage = self.calculate_damage(target)
         self.apply_damage(damage)
