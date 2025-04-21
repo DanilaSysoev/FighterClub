@@ -5,15 +5,15 @@
 {% block page_main %}
 
 <div class="container">
-    <div class="row">
+    <div class="row mt-2">
         <div class="col d-flex flex-column">
-            <div class="card flex-fill">
+            <div class="card flex-fill flexbox">
                 <div class="card-header">
                     <div class="row">
                         <div class="col-md-auto h3">Инвентарь</div>
                     </div>
                 </div>
-                <form action="/shop/" method="post">
+                <form action="/shop/" method="post" class="d-flex flex-column flex-fill">
                     <input type="hidden" name="sell"/>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
@@ -25,8 +25,8 @@
                                 {% for armor_info in armors %}
                                 {% if armor_info.count > 0 %}
                                 <div class="row mx-1">
-                                    <div class="d-flex align-items-center border col-auto">
-                                        <input type="checkbox" name="armor" id="{{ armor_info.armor.id }}" value="{{ armor_info.armor.id }}"/>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ armor_info.count }}" name="armor_{{ armor_info.armor.id }}" id="{{ armor_info.armor.id }}" value="0"/>
                                     </div>
                                     <div class="d-flex align-items-center border col text-wrap">{{ armor_info.armor.name }}</div>
                                     <div class="d-flex align-items-center border col-2">{{ armor_info.armor.body_part }}</div>
@@ -50,8 +50,8 @@
                                 {% for weapon_info in weapons %}
                                 {% if weapon_info.count > 0 %}
                                 <div class="row mx-1">
-                                    <div class="d-flex align-items-center border col-auto">
-                                        <input type="checkbox" name="weapon" id="{{ weapon_info.weapon.id }}" value="{{ weapon_info.weapon.id }}"/>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ weapon_info.count }}" name="weapon_{{ weapon_info.weapon.id }}" id="{{ weapon_info.weapon.id }}" value="0"/>
                                     </div>
                                     <div class="d-flex align-items-center border col text-wrap">{{ weapon_info.weapon.name }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
@@ -74,8 +74,8 @@
                                 {% for treasure_info in treasures %}
                                 {% if treasure_info.count > 0 %}
                                 <div class="row mx-1">
-                                    <div class="d-flex align-items-center border col-auto">
-                                        <input type="checkbox" name="treasure" id="{{ treasure_info.treasure.id }}" value="{{ treasure_info.treasure.id }}"/>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ treasure_info.count }}" name="treasure_{{ treasure_info.treasure.id }}" id="{{ treasure_info.treasure.id }}" value="0"/>
                                     </div>
                                     <div class="d-flex align-items-center border col text-wrap">{{ treasure_info.treasure.name }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
@@ -115,8 +115,8 @@
                             <div class="overflow-auto" style="max-height: 150px">
                                 {% for armor in armors_shop %}
                                 <div class="row mx-1">
-                                    <div class="d-flex align-items-center border col-auto">
-                                        <input type="checkbox" name="armor" id="{{ armor.id }}" value="{{ armor.id }}"/>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="999" name="armor_{{ armor.id }}" id="{{ armor.id }}" value="0"/>
                                     </div>
                                     <div class="d-flex align-items-center border col text-wrap">{{ armor.name }}</div>
                                     <div class="d-flex align-items-center border col-2">{{ armor.body_part }}</div>
@@ -135,8 +135,8 @@
                             <div class="overflow-auto" style="max-height: 150px">
                                 {% for weapon in weapons_shop %}
                                 <div class="row mx-1">
-                                    <div class="d-flex align-items-center border col-auto">
-                                        <input type="checkbox" name="weapon" id="{{ weapon.id }}" value="{{ weapon.id }}"/>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="999" name="weapon_{{ weapon.id }}" id="{{ weapon.id }}" value="0"/>
                                     </div>
                                     <div class="d-flex align-items-center border col text-wrap">{{ weapon.name }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">

@@ -30,17 +30,22 @@ class SellShopTransaction:
                self.can_sell(fighter, 'treasure', Treasure)
                
     def can_sell(self, fighter, name, type):
-        for id in self.request.POST.getlist(name):
-            item = type.objects.get(id=int(id))
-            if not fighter.owns(item):
-                return False
+        for marked_id, count_data in self.request.POST.items():
+            if marked_id.startswith(name):
+                item_id = int(marked_id.split('_')[1])
+                item = type.objects.get(id=int(item_id))
+                if not fighter.owns(item, int(count_data)):
+                    return False
         return True
         
     def sell_items(self, fighter, name, type):
-        for id in self.request.POST.getlist(name):
-            item = type.objects.get(id=int(id))
-            fighter.money += item.get_sell_price()
-            fighter.remove_from_inventory(item)
+        for marked_id, count_data in self.request.POST.items():
+            if marked_id.startswith(name):
+                item_id = int(marked_id.split('_')[1])
+                item = type.objects.get(id=int(item_id))
+                count = int(count_data)
+                fighter.money += item.get_sell_price() * count
+                fighter.remove_from_inventory(item, count)
     
     def is_correct_finished(self):
         return self.finished
@@ -73,15 +78,20 @@ class BuyShopTransaction:
                
     def get_sum(self, name, type):
         summ = 0
-        for id in self.request.POST.getlist(name):            
-            summ += type.objects.get(id=int(id)).get_buy_price()
+        for marked_id, count_data in self.request.POST.items():
+            if marked_id.startswith(name):
+                item_id = int(marked_id.split('_')[1])
+                summ += type.objects.get(id=int(item_id)).get_buy_price() * int(count_data)
         return summ
         
     def buy_items(self, fighter, name, type):
-        for id in self.request.POST.getlist(name):
-            item = type.objects.get(id=int(id))
-            fighter.money -= item.get_buy_price()
-            fighter.add_to_inventory(item)
+        for marked_id, count_data in self.request.POST.items():
+            if marked_id.startswith(name):
+                item_id = int(marked_id.split('_')[1])
+                item = type.objects.get(id=int(item_id))
+                count = int(count_data)
+                fighter.money -= item.get_buy_price() * count
+                fighter.add_to_inventory(item, count)
     
     def is_correct_finished(self):
         return self.finished

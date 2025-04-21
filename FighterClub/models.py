@@ -32,30 +32,30 @@ class Weapon(models.Model):
         if fighter.weapon == self:
             fighter.take_off_weapon()
     
-    def add_to_inventory(self, fighter):
+    def add_to_inventory(self, fighter, count=1):
         data = InventoryWeapon.objects.filter(fighter=fighter, weapon=self)
         if data.exists():
             items = data.first()
-            items.count += 1
+            items.count += count
         else:
-            items = InventoryWeapon.objects.create(fighter=fighter, weapon=self, count=1)
+            items = InventoryWeapon.objects.create(fighter=fighter, weapon=self, count=count)
         items.save()
 
-    def remove_from_inventory(self, fighter):
+    def remove_from_inventory(self, fighter, count=1):
         items = get_object_or_404(InventoryWeapon, fighter=fighter, weapon=self)
-        if items.count < 1:
+        if items.count < count:
             raise Http404(
                 'Bad inventory state. Count of weapon items not positive'
             )
-        if items.count == 1:
+        if items.count == count:
             items.delete()
         else:
-            items.count -= 1
+            items.count -= count
             items.save()
 
-    def owned_by(self, fighter):
+    def owned_by(self, fighter, count=1):
         return (InventoryWeapon.objects 
-                               .filter(fighter=fighter, weapon=self)
+                               .filter(fighter=fighter, weapon=self, count__gte=count)
                                .exists())
     
     def get_sell_price(self):
@@ -92,30 +92,30 @@ class Armor(models.Model):
     def take_off(self, fighter):
         fighter.take_off_armor(self.id)
     
-    def add_to_inventory(self, fighter):
+    def add_to_inventory(self, fighter, count=1):
         data = InventoryArmor.objects.filter(fighter=fighter, armor=self)
         if data.exists():
             items = data.first()
-            items.count += 1
+            items.count += count
         else:
-            items = InventoryArmor.objects.create(fighter=fighter, armor=self, count=1)
+            items = InventoryArmor.objects.create(fighter=fighter, armor=self, count=count)
         items.save()
 
-    def remove_from_inventory(self, fighter):
+    def remove_from_inventory(self, fighter, count=1):
         items = get_object_or_404(InventoryArmor, fighter=fighter, armor=self)
-        if items.count < 1:
+        if items.count < count:
             raise Http404(
                 'Bad inventory state. Count of armor items not positive'
             )
-        if items.count == 1:
+        if items.count == count:
             items.delete()
         else:
-            items.count -= 1
+            items.count -= count
             items.save()
 
-    def owned_by(self, fighter):
+    def owned_by(self, fighter, count=1):
         return (InventoryArmor.objects 
-                              .filter(fighter=fighter, armor=self)
+                              .filter(fighter=fighter, armor=self, count__gte=count)
                               .exists())
 
     def get_sell_price(self):
@@ -146,30 +146,30 @@ class Treasure(models.Model):
                                      decimal_places=2,
                                      max_digits=5)
     
-    def add_to_inventory(self, fighter):
+    def add_to_inventory(self, fighter, count=1):
         data = InventoryTreasure.objects.filter(fighter=fighter, treasure=self)
         if data.exists():
             items = data.first()
-            items.count += 1
+            items.count += count
         else:
-            items = InventoryTreasure.objects.create(fighter=fighter, treasure=self, count=1)
+            items = InventoryTreasure.objects.create(fighter=fighter, treasure=self, count=count)
         items.save()
         
-    def remove_from_inventory(self, fighter):
+    def remove_from_inventory(self, fighter, count=1):
         items = get_object_or_404(InventoryTreasure, fighter=fighter, treasure=self)
-        if items.count < 1:
+        if items.count < count:
             raise Http404(
                 'Bad inventory state. Count of treasure items not positive'
             )
-        if items.count == 1:
+        if items.count == count:
             items.delete()
         else:
-            items.count -= 1
+            items.count -= count
             items.save()
 
-    def owned_by(self, fighter):
+    def owned_by(self, fighter, count=1):
         return (InventoryTreasure.objects 
-                                 .filter(fighter=fighter, treasure=self)
+                                 .filter(fighter=fighter, treasure=self, count__gte=count)
                                  .exists())
         
     def get_sell_price(self):
@@ -258,16 +258,16 @@ class Fighter(models.Model):
     def take_off_weapon(self):
         self.equip_weapon(None)
         
-    def add_to_inventory(self, item):
-        item.add_to_inventory(self)
+    def add_to_inventory(self, item, count=1):
+        item.add_to_inventory(self, count)
         self.save()
         
-    def remove_from_inventory(self, item):
-        item.remove_from_inventory(self)
+    def remove_from_inventory(self, item, count=1):
+        item.remove_from_inventory(self, count)
         self.save()
         
-    def owns(self, item):
-        return item.owned_by(self)
+    def owns(self, item, count=1):
+        return item.owned_by(self, count)
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -303,7 +303,7 @@ class Fighter(models.Model):
     
     def __str__(self):
         return self.name
-    
+
 
 class InventoryArmor(models.Model):
     class Meta:
