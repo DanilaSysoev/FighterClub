@@ -19,30 +19,32 @@ class BodyPart(models.Model):
         return self.name
 
 
-class Weapon(models.Model):
+class Item(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    damage = models.IntegerField(default=1)
     price = models.IntegerField(default=0)
     sell_coeff = models.DecimalField(default=0.5,
                                      decimal_places=2,
                                      max_digits=5)
     
-    def take_off(self, fighter):
-        if fighter.weapon == self:
-            fighter.take_off_weapon()
+    class Meta:
+        abstract = True
+    
+    def __init__(self, inventory_type, *args, **kwargs):
+        self.inventory_type = inventory_type
+        super().__init__(*args, **kwargs)
     
     def add_to_inventory(self, fighter, count=1):
-        data = InventoryWeapon.objects.filter(fighter=fighter, weapon=self)
+        data = self.inventory_type.objects.filter(fighter=fighter, item=self)
         if data.exists():
             items = data.first()
             items.count += count
         else:
-            items = InventoryWeapon.objects.create(fighter=fighter, weapon=self, count=count)
+            items = self.inventory_type.objects.create(fighter=fighter, item=self, count=count)
         items.save()
 
     def remove_from_inventory(self, fighter, count=1):
-        items = get_object_or_404(InventoryWeapon, fighter=fighter, weapon=self)
+        items = get_object_or_404(self.inventory_type, fighter=fighter, item=self)
         if items.count < count:
             raise Http404(
                 'Bad inventory state. Count of weapon items not positive'
@@ -54,15 +56,29 @@ class Weapon(models.Model):
             items.save()
 
     def owned_by(self, fighter, count=1):
-        return (InventoryWeapon.objects 
-                               .filter(fighter=fighter, weapon=self, count__gte=count)
-                               .exists())
+        return (self.inventory_type.objects 
+                                   .filter(fighter=fighter, item=self, count__gte=count)
+                                   .exists())
     
     def get_sell_price(self):
         return int(self.price * self.sell_coeff)
 
     def get_buy_price(self):
         return self.price
+    
+    def __str__(self):
+        return self.name
+
+
+class Weapon(Item):
+    damage = models.IntegerField(default=1)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(InventoryWeapon, *args, **kwargs)
+    
+    def take_off(self, fighter):
+        if fighter.weapon == self:
+            fighter.take_off_weapon()
     
     def sell_info(self):
         return f'{self.name}: ' \
@@ -73,56 +89,18 @@ class Weapon(models.Model):
                 return f'{self.name}: ' \
                f'{self.damage}⚔️ ' \
                f'{self.get_buy_price()}💰'
-    
-    def __str__(self):
-        return self.name
 
 
-class Armor(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
+class Armor(Item):
     body_part = models.ForeignKey(BodyPart,
                                   on_delete=models.CASCADE)
     armor = models.IntegerField(default=1)
-    price = models.IntegerField(default=0)
-    sell_coeff = models.DecimalField(default=0.5,
-                                     decimal_places=2,
-                                     max_digits=5)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(InventoryArmor, *args, **kwargs)
     
     def take_off(self, fighter):
         fighter.take_off_armor(self.id)
-    
-    def add_to_inventory(self, fighter, count=1):
-        data = InventoryArmor.objects.filter(fighter=fighter, armor=self)
-        if data.exists():
-            items = data.first()
-            items.count += count
-        else:
-            items = InventoryArmor.objects.create(fighter=fighter, armor=self, count=count)
-        items.save()
-
-    def remove_from_inventory(self, fighter, count=1):
-        items = get_object_or_404(InventoryArmor, fighter=fighter, armor=self)
-        if items.count < count:
-            raise Http404(
-                'Bad inventory state. Count of armor items not positive'
-            )
-        if items.count == count:
-            items.delete()
-        else:
-            items.count -= count
-            items.save()
-
-    def owned_by(self, fighter, count=1):
-        return (InventoryArmor.objects 
-                              .filter(fighter=fighter, armor=self, count__gte=count)
-                              .exists())
-
-    def get_sell_price(self):
-        return int(self.price * self.sell_coeff)
-
-    def get_buy_price(self):
-        return self.price
     
     def sell_info(self):
         return f'{self.name}: {self.body_part}, ' \
@@ -134,58 +112,16 @@ class Armor(models.Model):
                f'{self.armor}🛡 ' \
                f'{self.get_buy_price()}💰'
 
-    def __str__(self):
-        return self.name
 
-
-class Treasure(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    price = models.IntegerField(default=0)
-    sell_coeff = models.DecimalField(default=1,
-                                     decimal_places=2,
-                                     max_digits=5)
-    
-    def add_to_inventory(self, fighter, count=1):
-        data = InventoryTreasure.objects.filter(fighter=fighter, treasure=self)
-        if data.exists():
-            items = data.first()
-            items.count += count
-        else:
-            items = InventoryTreasure.objects.create(fighter=fighter, treasure=self, count=count)
-        items.save()
-        
-    def remove_from_inventory(self, fighter, count=1):
-        items = get_object_or_404(InventoryTreasure, fighter=fighter, treasure=self)
-        if items.count < count:
-            raise Http404(
-                'Bad inventory state. Count of treasure items not positive'
-            )
-        if items.count == count:
-            items.delete()
-        else:
-            items.count -= count
-            items.save()
-
-    def owned_by(self, fighter, count=1):
-        return (InventoryTreasure.objects 
-                                 .filter(fighter=fighter, treasure=self, count__gte=count)
-                                 .exists())
-        
-    def get_sell_price(self):
-        return int(self.price * self.sell_coeff)
-
-    def get_buy_price(self):
-        return self.price
+class Treasure(Item):    
+    def __init__(self, *args, **kwargs):
+        super().__init__(InventoryTreasure, *args, **kwargs)
     
     def sell_info(self):
         return f'{self.name}: {self.get_sell_price()}💰'
     
     def buy_info(self):
         return f'{self.name}: {self.get_buy_price()}💰'
-    
-    def __str__(self):
-        return self.name
 
 
 class Money:
@@ -305,40 +241,33 @@ class Fighter(models.Model):
         return self.name
 
 
-class InventoryArmor(models.Model):
-    class Meta:
-        unique_together = (('fighter', 'armor'),)
-    
+class InventoryItem(models.Model):
     fighter = models.ForeignKey(Fighter, on_delete=models.CASCADE)
-    armor = models.ForeignKey(Armor, on_delete=models.CASCADE)
-    count = models.IntegerField()
+    count = models.IntegerField()    
     
     def __str__(self):
-        return f'{self.fighter}: {self.armor} - {self.count}'
+        return f'{self.fighter}: {self.item} - {self.count}'
     
-    
-class InventoryWeapon(models.Model):
     class Meta:
-        unique_together = (('fighter', 'weapon'),)
+        abstract = True
 
-    fighter = models.ForeignKey(Fighter, on_delete=models.CASCADE)
-    weapon = models.ForeignKey(Weapon, on_delete=models.CASCADE)
-    count = models.IntegerField()
+
+class InventoryArmor(InventoryItem):
+    item = models.ForeignKey(Armor, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = (('fighter', 'item'),)
     
-    def __str__(self):
-        return f'{self.fighter}: {self.weapon} - {self.count}'
+    
+class InventoryWeapon(InventoryItem):
+    item = models.ForeignKey(Weapon, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = (('fighter', 'item'),)
     
 
-class InventoryTreasure(models.Model):
+class InventoryTreasure(InventoryItem):
+    item = models.ForeignKey(Treasure, on_delete=models.CASCADE)
     class Meta:
-        unique_together = (('fighter', 'treasure'),)
-    
-    fighter = models.ForeignKey(Fighter, on_delete=models.CASCADE)
-    treasure = models.ForeignKey(Treasure, on_delete=models.CASCADE)
-    count = models.IntegerField()
-    
-    def __str__(self):
-        return f'{self.fighter}: {self.treasure} - {self.count}'
+        unique_together = (('fighter', 'item'),)
 
 
 class FighterEquipment(models.Model):

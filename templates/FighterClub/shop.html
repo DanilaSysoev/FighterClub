@@ -5,7 +5,7 @@
 {% block page_main %}
 
 <div class="container">
-    <div class="row mt-2">
+    <div class="row">
         <div class="col d-flex flex-column">
             <div class="card flex-fill flexbox">
                 <div class="card-header">
@@ -26,15 +26,15 @@
                                 {% if armor_info.count > 0 %}
                                 <div class="row mx-1">
                                     <div class="d-flex align-items-center col-auto px-1">
-                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ armor_info.count }}" name="armor_{{ armor_info.armor.id }}" id="{{ armor_info.armor.id }}" value="0"/>
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ armor_info.count }}" name="armor_{{ armor_info.item.id }}" id="{{ armor_info.item.id }}" value="0"/>
                                     </div>
-                                    <div class="d-flex align-items-center border col text-wrap">{{ armor_info.armor.name }}</div>
-                                    <div class="d-flex align-items-center border col-2">{{ armor_info.armor.body_part }}</div>
+                                    <div class="d-flex align-items-center border col text-wrap">{{ armor_info.item.name }}</div>
+                                    <div class="d-flex align-items-center border col-2">{{ armor_info.item.body_part }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">🛡 {{ armor_info.armor.armor }}</span>                                
+                                        <span style="width: 70px">🛡 {{ armor_info.item.armor }}</span>                                
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">💰 {{ armor_info.armor.get_sell_price }}</span>
+                                        <span style="width: 70px">💰 {{ armor_info.item.get_sell_price }}</span>
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
                                         <span style="width: 70px">📦 {{ armor_info.count }}</span>
@@ -51,14 +51,14 @@
                                 {% if weapon_info.count > 0 %}
                                 <div class="row mx-1">
                                     <div class="d-flex align-items-center col-auto px-1">
-                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ weapon_info.count }}" name="weapon_{{ weapon_info.weapon.id }}" id="{{ weapon_info.weapon.id }}" value="0"/>
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ weapon_info.count }}" name="weapon_{{ weapon_info.item.id }}" id="{{ weapon_info.item.id }}" value="0"/>
                                     </div>
-                                    <div class="d-flex align-items-center border col text-wrap">{{ weapon_info.weapon.name }}</div>
+                                    <div class="d-flex align-items-center border col text-wrap">{{ weapon_info.item.name }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">⚔️ {{ weapon_info.weapon.damage }}</span>                                
+                                        <span style="width: 70px">⚔️ {{ weapon_info.item.damage }}</span>                                
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">💰 {{ weapon_info.weapon.get_sell_price }}</span>
+                                        <span style="width: 70px">💰 {{ weapon_info.item.get_sell_price }}</span>
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
                                         <span style="width: 70px">📦 {{ weapon_info.count }}</span>
@@ -75,19 +75,19 @@
                                 {% if treasure_info.count > 0 %}
                                 <div class="row mx-1">
                                     <div class="d-flex align-items-center col-auto px-1">
-                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ treasure_info.count }}" name="treasure_{{ treasure_info.treasure.id }}" id="{{ treasure_info.treasure.id }}" value="0"/>
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ treasure_info.count }}" name="treasure_{{ treasure_info.item.id }}" id="{{ treasure_info.item.id }}" value="0"/>
                                     </div>
-                                    <div class="d-flex align-items-center border col text-wrap">{{ treasure_info.treasure.name }}</div>
+                                    <div class="d-flex align-items-center border col text-wrap">{{ treasure_info.item.name }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">💰 {{ treasure_info.treasure.get_sell_price }}</span>
+                                        <span style="width: 70px">💰 {{ treasure_info.item.get_sell_price }}</span>
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
                                         <span style="width: 70px">📦 {{ treasure_info.count }}</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <input type="checkbox" name="treasure" id="{{ treasure_info.treasure.id }}" value="{{ treasure_info.treasure.id }}"/>
-                                    <label for="{{ treasure_info.treasure.id }}">{{ treasure_info.treasure.sell_info }} ({{ treasure_info.count }})</label>
+                                    <input type="checkbox" name="treasure" id="{{ treasure_info.item.id }}" value="{{ treasure_info.item.id }}"/>
+                                    <label for="{{ treasure_info.item.id }}">{{ treasure_info.item.sell_info }} ({{ treasure_info.count }})</label>
                                 </div>
                                 {% endif %}
                                 {% endfor %}
@@ -121,7 +121,7 @@
                                     <div class="d-flex align-items-center border col text-wrap">{{ armor.name }}</div>
                                     <div class="d-flex align-items-center border col-2">{{ armor.body_part }}</div>
                                     <div class="d-flex align-items-center border col-auto p-0">
-                                        <span style="width: 70px">🛡 {{ armor.armor }}</span>                                
+                                        <span style="width: 70px">🛡 {{ armor.item }}</span>                                
                                     </div>
                                     <div class="d-flex align-items-center border col-auto p-0">
                                         <span style="width: 70px">💰 {{ armor.get_buy_price }}</span>
