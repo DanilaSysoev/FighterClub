@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from FighterClub.enum_helpers import StateNames
+from FighterClub.potion_effects import (base_heal,)  # noqa: F401
 
     
 class FighterState(models.Model):
@@ -79,16 +80,6 @@ class Weapon(Item):
     def take_off(self, fighter):
         if fighter.weapon == self:
             fighter.take_off_weapon()
-    
-    def sell_info(self):
-        return f'{self.name}: ' \
-               f'{self.damage}⚔️ ' \
-               f'{self.get_sell_price()}💰'
-    
-    def buy_info(self):
-                return f'{self.name}: ' \
-               f'{self.damage}⚔️ ' \
-               f'{self.get_buy_price()}💰'
 
 
 class Armor(Item):
@@ -101,27 +92,27 @@ class Armor(Item):
     
     def take_off(self, fighter):
         fighter.take_off_armor(self.id)
-    
-    def sell_info(self):
-        return f'{self.name}: {self.body_part}, ' \
-               f'{self.armor}🛡 ' \
-               f'{self.get_sell_price()}💰'
-    
-    def buy_info(self):
-        return f'{self.name}: {self.body_part}, ' \
-               f'{self.armor}🛡 ' \
-               f'{self.get_buy_price()}💰'
 
 
 class Treasure(Item):    
     def __init__(self, *args, **kwargs):
         super().__init__(InventoryTreasure, *args, **kwargs)
+
+
+class PotionEffect(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    def __str__(self):
+        return self.name
+
+
+class Potion(Item):
+    effect = models.ForeignKey(PotionEffect, 
+                               on_delete=models.CASCADE)
+    description = models.CharField(max_length=255, default='')
     
-    def sell_info(self):
-        return f'{self.name}: {self.get_sell_price()}💰'
-    
-    def buy_info(self):
-        return f'{self.name}: {self.get_buy_price()}💰'
+    def __init__(self, *args, **kwargs):
+        super().__init__(InventoryPotion, *args, **kwargs)
 
 
 class Money:
@@ -131,11 +122,11 @@ class Money:
     def __str__(self):
         return f'{self.volume}💰'
     
-    def add_to_inventory(self, fighter):
+    def add_to_inventory(self, fighter, _=1):
         fighter.money += self.volume
         fighter.save()
     
-    def remove_from_inventory(self, fighter):
+    def remove_from_inventory(self, fighter, _=1):
         fighter.money -= self.volume
         if fighter.money < 0:
             fighter.money = 0
@@ -179,6 +170,18 @@ class Fighter(models.Model):
             armor.remove_from_inventory(self)
 
         equipped.save()
+        self.save()
+        
+    def drink_potion(self, potion, request):
+        if potion:
+            potion.remove_from_inventory(self)
+        exec(f'{potion.effect.name}(request=request)')
+        self.save()
+    
+    def heal(self, value):
+        self.health += value
+        if self.health > self.max_health:
+            self.health = self.max_health
         self.save()
     
     def take_off_armor(self, armor_id):        
@@ -266,6 +269,12 @@ class InventoryWeapon(InventoryItem):
 
 class InventoryTreasure(InventoryItem):
     item = models.ForeignKey(Treasure, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = (('fighter', 'item'),)
+
+
+class InventoryPotion(InventoryItem):
+    item = models.ForeignKey(Potion, on_delete=models.CASCADE)
     class Meta:
         unique_together = (('fighter', 'item'),)
 

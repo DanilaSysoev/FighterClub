@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from FighterClub.models import \
-    Armor, Weapon, Treasure, \
+    Armor, Weapon, Treasure, Potion, \
     Money, FighterEquipment, Fight, BodyPart, \
     MonsterArmor, FightMonster
 
@@ -20,6 +20,7 @@ class SellShopTransaction:
             self.sell_items(fighter, 'armor', Armor)
             self.sell_items(fighter, 'weapon', Weapon)
             self.sell_items(fighter, 'treasure', Treasure)
+            self.sell_items(fighter, 'potion', Potion)
         else:
             self.error_message = 'Не удалось продать предметы'
             self.finished = False
@@ -27,7 +28,8 @@ class SellShopTransaction:
     def can_sell_all_items(self, fighter):
         return self.can_sell(fighter, 'armor', Armor) and \
                self.can_sell(fighter, 'weapon', Weapon) and \
-               self.can_sell(fighter, 'treasure', Treasure)
+               self.can_sell(fighter, 'treasure', Treasure) and \
+               self.can_sell(fighter, 'potion', Potion)
                
     def can_sell(self, fighter, name, type):
         for marked_id, count_data in self.request.POST.items():
@@ -66,6 +68,7 @@ class BuyShopTransaction:
             self.buy_items(fighter, 'armor', Armor)
             self.buy_items(fighter, 'weapon', Weapon)
             self.buy_items(fighter, 'treasure', Treasure)
+            self.buy_items(fighter, 'potion', Potion)
         else:
             self.error_message = 'Не удалось купить предметы. Недостаточно денег'
             self.finished = False
@@ -73,7 +76,8 @@ class BuyShopTransaction:
     def can_buy_all_items(self, fighter):
         return (self.get_sum('armor', Armor) + 
                 self.get_sum('weapon', Weapon) + 
-                self.get_sum('treasure', Treasure)) \
+                self.get_sum('treasure', Treasure) +
+                self.get_sum('potion', Potion)) \
             <= fighter.money
                
     def get_sum(self, name, type):
@@ -234,3 +238,13 @@ class RandomDefenceStrategy:
 class RandomAttackStrategy:
     def select_body_part(self, fighter):
         return random.choice(BodyPart.objects.all())
+
+
+class PotionEffects:
+    def heal_potion(self, request, heal_value):
+        fighter = request.user.fighter
+        
+        fighter.health += heal_value
+        if fighter.health > fighter.max_health:
+            fighter.health = fighter.max_health
+        fighter.save()

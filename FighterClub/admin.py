@@ -1,25 +1,29 @@
 from django.contrib import admin
-from .models import Weapon, \
-                    Armor, \
-                    BodyPart, \
-                    Treasure, \
-                    FighterEquipment, \
-                    Fighter, \
-                    Monster, \
-                    InventoryArmor, \
-                    InventoryWeapon, \
-                    InventoryTreasure, \
-                    Stage, \
-                    Quest, \
-                    StageMonster, \
-                    Fight, \
-                    FightMonster, \
-                    MonsterArmor
+from .models import (Weapon,
+                     Armor,
+                     BodyPart,
+                     Treasure,
+                     Potion,
+                     PotionEffect,
+                     FighterEquipment,
+                     Fighter,
+                     Monster,
+                     InventoryArmor,
+                     InventoryWeapon,
+                     InventoryTreasure,
+                     Stage,
+                     Quest,
+                     StageMonster,
+                     Fight,
+                     FightMonster,
+                     MonsterArmor)
 
 admin.site.register(Weapon)
 admin.site.register(Armor)
 admin.site.register(BodyPart)
 admin.site.register(Treasure)
+admin.site.register(Potion)
+admin.site.register(PotionEffect)
 admin.site.register(FighterEquipment)
 admin.site.register(Fighter)
 admin.site.register(Monster)

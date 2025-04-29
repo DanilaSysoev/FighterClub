@@ -69,6 +69,30 @@
                             </div>
                         </li>
                         <li class="list-group-item">
+                            <div class="h5">Зелья</div>
+                            <div class="overflow-auto" style="max-height: 150px">
+                                {% for potion_info in potions %}
+                                {% if potion_info.count > 0 %}
+                                <div class="row mx-1">
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="{{ potion_info.count }}" name="potion_{{ potion_info.item.id }}" id="{{ potion_info.item.id }}" value="0"/>
+                                    </div>
+                                    <div class="d-flex align-items-center border col text-wrap">{{ potion_info.item.name }}</div>
+                                    <div class="d-flex align-items-center border col-auto p-0">
+                                        <span style="width: 70px">{{ potion_info.item.description }}</span>                                
+                                    </div>
+                                    <div class="d-flex align-items-center border col-auto p-0">
+                                        <span style="width: 70px">💰 {{ potion_info.item.get_sell_price }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center border col-auto p-0">
+                                        <span style="width: 70px">📦 {{ potion_info.count }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </li>
+                        <li class="list-group-item">
                             <div class="h5">Сокровища</div>
                             <div class="overflow-auto" style="max-height: 150px">
                                 {% for treasure_info in treasures %}
@@ -84,10 +108,6 @@
                                     <div class="d-flex align-items-center border col-auto p-0">
                                         <span style="width: 70px">📦 {{ treasure_info.count }}</span>
                                     </div>
-                                </div>
-                                <div>
-                                    <input type="checkbox" name="treasure" id="{{ treasure_info.item.id }}" value="{{ treasure_info.item.id }}"/>
-                                    <label for="{{ treasure_info.item.id }}">{{ treasure_info.item.sell_info }} ({{ treasure_info.count }})</label>
                                 </div>
                                 {% endif %}
                                 {% endfor %}
@@ -106,13 +126,12 @@
                 <div class="card-header">
                     <h3>Магазин</h3>
                 </div>
-                <form action="/shop/" method="post" class="d-flex flex-column flex-fill">
-                    {% comment %} <div class="card-body"> {% endcomment %}
+                <form action="/shop/" method="post" class="d-flex flex-column flex-fill">                    
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <input type="hidden" name="buy"/>
                             <div class="h5">Броня</div>
-                            <div class="overflow-auto" style="max-height: 150px">
+                            <div class="overflow-auto" style="max-height: 220px">
                                 {% for armor in armors_shop %}
                                 <div class="row mx-1">
                                     <div class="d-flex align-items-center col-auto px-1">
@@ -132,7 +151,7 @@
                         </li>
                         <li class="list-group-item">
                             <div class="h5">Оружие</div>
-                            <div class="overflow-auto" style="max-height: 150px">
+                            <div class="overflow-auto" style="max-height: 220px">
                                 {% for weapon in weapons_shop %}
                                 <div class="row mx-1">
                                     <div class="d-flex align-items-center col-auto px-1">
@@ -149,8 +168,29 @@
                                 {% endfor %}
                             </div>
                         </li>
-                    </ul>
-                    {% comment %} </div> {% endcomment %}
+                        <li class="list-group-item">
+                            <input type="hidden" name="buy"/>
+                            <div class="h5">Зелья</div>
+                            <div class="overflow-auto" style="max-height: 220px">
+                                {% for potion in potions_shop %}
+                                <div class="row mx-1">
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <input class="form-control" style="width: 75px;" type="number" min="0" max="999" name="potion_{{ potion.id }}" id="{{ potion.id }}" value="0"/>
+                                    </div>
+                                    <div class="d-flex align-items-center border col text-wrap border">
+                                        {{ potion.name }}
+                                    </div>
+                                    <div class="d-flex align-items-center border col-auto p-0">
+                                        <span style="width: 70px">{{ potion.description }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center border col-auto p-0">
+                                        <span style="width: 70px">💰 {{ potion.get_buy_price }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    </ul>                    
                     <div class="card-footer mt-auto">
                         <button type="submit" class="btn btn-success">Купить</button>
                     </div>

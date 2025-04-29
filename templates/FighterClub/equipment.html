@@ -11,91 +11,145 @@
             <div class="card flex-fill">
                 <div class="card-header">                    
                     <div class="row">
-                        <div class="col-md-auto h3">{{ fighter.name }}</div>
+                        <div class="col-md-auto h3">{{ fighter.name }} ({{ fighter.health }} / {{ fighter.max_health }} ❤)</div>
                     </div>
                 </div>
                 <div class="card-body">
                     {% for eq in equipment %}
                     <form action="/take_off/" method="post">
-                        <div class="row my-1">
-                            <div class="col d-flex align-items-center">
-                                <span class="fw-bold align-middle">{{ eq.body_part.name }}</span>
+                        <div class="row mx-1">
+                            <div class="d-flex align-items-center col-auto border">
+                                <span class="fw-bold" style="width: 75px;">{{ eq.body_part.name }}</span>
                             </div>
-                            <div class="col-8 d-flex align-items-center">
-                                {% if eq.armor %}
-                                <span class="fst-italic align-middle">{{ eq.armor.name }}</span>
-                                {% endif %}
+                            {% if eq.armor %}
+                            <div class="d-flex align-items-center border col text-wrap">{{ eq.armor.name }}</div>
+                            <div class="d-flex align-items-center border col-auto px-1">
+                                <span style="width: 70px">🛡 {{ eq.armor.armor }}</span>
                             </div>
-                            <div class="col-1 d-flex align-items-center">
-                                {% if eq.armor %}
-                                <button type="submit" class="btn btn-sm btn-danger">X</button>
+                            <div class="col-auto d-flex align-items-center px-1">
+                                <button type="submit" class="btn btn-sm btn-light" style="width: 70px">Снять</button>
                                 <input type="hidden" name="armor" value="{{ eq.armor.id }}"/>
-                                {% else %}
-                                <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
-                                {% endif %}
                             </div>
+                            {% else %}
+                            <div class="d-flex align-items-center border col text-wrap"></div>
+                            <div class="d-flex align-items-center border col-auto px-1">
+                                <span style="width: 70px"></span>
+                            </div>
+                            <div class="col-auto d-flex align-items-center px-1">
+                                <span  style="width: 70px"></span>
+                            </div>
+                            {% endif %}
                         </div>
                         {% csrf_token %}
                     </form>
                     {% endfor %}
                     <hr/>
                     <form action="/take_off/" method="post">
-                    <div class="row my-1">
-                        <div class="col d-flex align-items-center">
-                            <span class="fw-bold align-middle">Оружие</span>
-                        </div>
-                        <div class="col-8 d-flex align-items-center">
+                        <div class="row mx-1">
+                            <div class="d-flex align-items-center col-auto border">
+                                <span class="fw-bold align-middle" style="width: 75px;">Оружие</span>
+                            </div>
                             {% if fighter.weapon %}
-                            <span class="fst-italic align-middle">{{ fighter.weapon.name }}</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-1 d-flex align-items-center">
-                            {% if fighter.weapon %}
-                            <button type="submit" class="btn btn-sm btn-danger">X</button>
-                            <input type="hidden" name="weapon" value="weapon"/>
+                            <div class="col d-flex align-items-center border">{{ fighter.weapon.name }}</div>
+                            <div class="d-flex align-items-center border col-auto px-1">
+                                <span style="width: 70px">⚔️ {{ fighter.weapon.damage }}</span>
+                            </div>
+                            <div class="col-auto d-flex align-items-center px-1">
+                                <button type="submit" class="btn btn-sm btn-light" style="width: 70px">Снять</button>
+                                <input type="hidden" name="weapon" value="weapon"/>
+                            </div>
                             {% else %}
-                            <button type="submit" class="btn btn-sm btn-danger disabled">X</button>
+                            <div class="col d-flex align-items-center border"></div>
+                            <div class="d-flex align-items-center border col-auto px-1">
+                                <span style="width: 70px"></span>
+                            </div>
+                            <div class="col-auto d-flex align-items-center px-1">
+                                <span style="width: 70px"></span>
+                            </div>
                             {% endif %}
                         </div>
-                    </div>
-                    {% csrf_token %}
+                        {% csrf_token %}
                     </form>
                 </div>
             </div>
         </div>
+
         <div class="col d-flex flex-column">
-            <div class="card flex-fill">
+            <div class="card flex-fill flexbox">
                 <div class="card-header">
                     <h3>Инвентарь</h3>
                 </div>
-                <div class="card-body">
-                    <form action="/equip/" method="post">
-                    <div class="overflow-auto" style="height: 80px">
-                        {% for armor_info in armors %}
-                        {% if armor_info.count > 0 %}
-                        <div>
-                            <input type="radio" name="armor" id="{{ armor_info.armor.id }}_{{ armor_info.armor.name }}" value="{{ armor_info.armor.id }}"/>
-                            <label for="{{ armor_info.armor.id }}_{{ armor_info.armor.name }}">{{ armor_info.armor.name }} - {{ armor_info.count }}</label>
+                <ul class="list-group list-group-flush mb-2">
+                    <li class="list-group-item">
+                        <div class="h5">Броня</div>
+                        <div class="overflow-auto mb-2" style="max-height: 220px">
+                            {% for armor_info in armors %}
+                            <form action="/equip/" method="post" class="d-flex flex-column flex-fill">
+                                {% if armor_info.count > 0 %}
+                                <div class="row mx-1">
+                                    <div class="d-flex align-items-center border col-auto">
+                                        <span class="fw-bold" style="width: 75px;">{{ armor_info.item.body_part }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center border col text-wrap">{{ armor_info.item.name }}</div>
+                                    <div class="d-flex align-items-center border col-auto px-1">
+                                        <span style="width: 70px">🛡 {{ armor_info.item.armor }}</span>                                
+                                    </div>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <button type="submit" class="btn btn-sm btn-light" style="width: 80px">Одеть</button>
+                                        <input type="hidden" name="armor" value="{{ armor_info.item.id }}"/>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% csrf_token %}
+                            </form>
+                            {% endfor %}
                         </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    <hr/>
-                    <div class="overflow-auto" style="height: 80px">
-                        {% for weapon_info in weapons %}
-                        {% if weapon_info.count > 0 %}
-                        <div>
-                            <input type="radio" name="weapon" id="{{ weapon_info.weapon.id }}_{{ weapon_info.weapon.name }}" value="{{ weapon_info.weapon.id }}"/>
-                            <label for="{{ weapon_info.weapon.id }}_{{ weapon_info.weapon.name }}">{{ weapon_info.weapon.name }} - {{ weapon_info.count }}</label>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="h5">Оружие</div>
+                        <div class="overflow-auto" style="max-height: 220px">
+                            {% for weapon_info in weapons %}
+                            <form action="/equip/" method="post" class="d-flex flex-column flex-fill">
+                                {% if weapon_info.count > 0 %}
+                                <div class="row mx-1">
+                                    <div class="d-flex align-items-center border col text-wrap">{{ weapon_info.item.name }}</div>
+                                    <div class="d-flex align-items-center border col-auto px-1">
+                                        <span style="width: 70px">⚔️ {{ weapon_info.item.damage }}</span>                                
+                                    </div>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <button type="submit" class="btn btn-sm btn-light" style="width: 80px">Одеть</button>
+                                        <input type="hidden" name="weapon" value="{{ weapon_info.item.id }}"/>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% csrf_token %}
+                            </form>
+                            {% endfor %}
                         </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    <hr/>
-                    <button type="submit" class="btn btn-primary btn-sm">Экипировать</button>
-                    {% csrf_token %}
-                    </form>
-                </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="h5">Зелья</div>
+                        <div class="overflow-auto" style="max-height: 220px">
+                            {% for potion_info in potions %}
+                            <form action="/drink_potion/" method="post" class="d-flex flex-column flex-fill">
+                                {% if potion_info.count > 0 %}
+                                <div class="row mx-1">
+                                    <div class="d-flex align-items-center border col text-wrap">{{ potion_info.item.name }}</div>
+                                    <div class="d-flex align-items-center border col-auto px-1">
+                                        <span style="width: 70px">{{ potion_info.item.description }}</span>                                
+                                    </div>
+                                    <div class="d-flex align-items-center col-auto px-1">
+                                        <button type="submit" class="btn btn-sm btn-light" style="width: 80px">Выпить</button>
+                                        <input type="hidden" name="potion" value="{{ potion_info.item.id }}"/>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% csrf_token %}
+                            </form>
+                            {% endfor %}
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

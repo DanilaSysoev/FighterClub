@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from FighterClub.views import \
-    index, login, logout, signup, rename, equip, take_off, \
+    index, login, logout, signup, rename, equip, take_off, drink_potion, \
     inventory, shop, quests, \
     fight, loot_collection, equipment, start_fight, death
         
@@ -38,5 +38,6 @@ urlpatterns = [
     path('fight/', fight, name='fight'),
     path('loot_collection/', loot_collection, name='loot_collection'),
     path('equipment/', equipment, name='equipment'),
-    path('death/', death, name='death')
+    path('death/', death, name='death'),
+    path('drink_potion/', drink_potion, name='drink_potion')
 ]

@@ -3,30 +3,32 @@ import django.contrib.auth as auth
 from django.contrib.auth.models import User
 
 from private.captcha import client_code, server_code
-from FighterClub.models import Fighter, \
-                               FighterEquipment, \
-                               Armor, \
-                               Weapon, \
-                               InventoryArmor, \
-                               InventoryWeapon, \
-                               InventoryTreasure, \
-                               Quest, \
-                               Fight, \
-                               FightMonster, \
-                               StageMonster
+from FighterClub.models import (Fighter,
+                                FighterEquipment,
+                                Armor,
+                                Weapon,
+                                Potion,
+                                InventoryArmor,
+                                InventoryWeapon,
+                                InventoryTreasure,
+                                Quest,
+                                Fight,
+                                FightMonster,
+                                StageMonster,
+                                InventoryPotion)
 
-from FighterClub.decorators import auth_required, \
-                                   fight_static, \
-                                   take_loot_static, \
-                                   equipment_static
-from FighterClub.gameplay import SellShopTransaction, \
-                                 BuyShopTransaction, \
-                                 FightProcessor, \
-                                 TreasureGeneratorMapper
+from FighterClub.decorators import (auth_required,
+                                    fight_static,
+                                    take_loot_static,
+                                    equipment_static)
+from FighterClub.gameplay import (SellShopTransaction,
+                                  BuyShopTransaction,
+                                  FightProcessor,
+                                  TreasureGeneratorMapper)
 
 from FighterClub.enum_helpers import FighterStateEntry, StateNames
-from FighterClub.gameplay_settings import DEATH_STRATEGY, \
-                                          ENEMIES_IN_ROW
+from FighterClub.gameplay_settings import (DEATH_STRATEGY,
+                                           ENEMIES_IN_ROW)
 
 import requests
 import sys
@@ -191,6 +193,27 @@ def equip(request):
     return redirect(next_state)
 
 
+def drink_potion_action(request):
+    if 'potion' not in request.POST:
+        return
+    request.user.fighter.drink_potion(
+        Potion.objects.get(id=int(request.POST['potion'][0])),
+        request
+    )
+
+
+@auth_required
+@fight_static
+@take_loot_static
+def drink_potion(request):
+    next_state = FighterStateEntry.INVENTORY.value
+    if request.POST:
+        if 'next_state' in request.POST:
+            next_state = request.POST['next_state']
+        drink_potion_action(request)
+    return redirect(next_state)
+
+
 @auth_required
 @fight_static
 @take_loot_static
@@ -208,9 +231,10 @@ def take_off(request):
 
 def extract_fighter_context(request):
     fighter = request.user.fighter
-    armors = InventoryArmor.objects.filter(fighter=fighter).all()
-    weapons = InventoryWeapon.objects.filter(fighter=fighter).all()
+    armors = InventoryArmor.objects.filter(fighter=fighter).order_by('item__body_part', '-item__armor').all()
+    weapons = InventoryWeapon.objects.filter(fighter=fighter).order_by('-item__damage').all()
     treasures = InventoryTreasure.objects.filter(fighter=fighter).all()
+    potions = InventoryPotion.objects.filter(fighter=fighter).all()
     return {
         'user': request.user,
         'fighter': fighter,
@@ -218,6 +242,7 @@ def extract_fighter_context(request):
         'armors': armors,
         'weapons': weapons,
         'treasures': treasures,
+        'potions': potions,
     }
 
 @auth_required
@@ -253,6 +278,7 @@ def shop(request):
     
     context['armors_shop'] = Armor.objects.all()
     context['weapons_shop'] = Weapon.objects.all()
+    context['potions_shop'] = Potion.objects.all()
     return render(request, 'shop.html', context=context)
 
 
@@ -401,7 +427,8 @@ def equipment(request):
         'fighter': fighter,
         'equipment': get_equipment(fighter),
         'armors': InventoryArmor.objects.filter(fighter=fighter).all(),
-        'weapons': InventoryWeapon.objects.filter(fighter=fighter).all()
+        'weapons': InventoryWeapon.objects.filter(fighter=fighter).all(),
+        'potions': InventoryPotion.objects.filter(fighter=fighter).all()
     }
     return render(request, 'equipment.html', context=context)
 
